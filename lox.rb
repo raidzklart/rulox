@@ -1,6 +1,8 @@
 require "./scanner.rb"
 require "./token"
-class Lox
+require "./parser"
+require "./ast_printer"
+class Lox < Expr
     had_error = false
 
     def run_file(path)
@@ -20,10 +22,22 @@ class Lox
     def run(source)
         tokens = []
         scanner = Scanner.new(source)
-        tokens << scanner.scan_tokens()
-        tokens.each do |token| 
-            puts token 
-        end
+        tokens += scanner.scan_tokens()
+        # puts "TOKENS: #{tokens} #{tokens.class} size #{tokens.size}"
+        parser = Parser.new(tokens)
+        # puts "PARSER: #{parser} #{parser.class} tokens: #{parser.tokens}"
+        expression = parser.parse()
+        # puts "EXPRESSION: #{expression} #{expression.class}"
+    #Stop if there was a syntax error.                   
+    # if (had_error)
+    #     return
+    # end
+        puts "AST PRINTER: #{AstPrinter.new.print(expression)}"
+        # scanner = Scanner.new(source)
+        # tokens << scanner.scan_tokens()
+        # tokens.each do |token| 
+        #     puts token 
+        # end
     end
 
     def self.error(line, message)

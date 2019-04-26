@@ -1,8 +1,13 @@
 require "./Expr"
 require "./token"
+require "./parser"
 class AstPrinter < Expr                    
     def print(expr)
-        return expr.accept(self)                                          
+        begin
+            return expr.accept(self)
+        rescue => exception
+            puts exception
+        end                                          
     end
     
     def visit_binary_expr(expr)                  
@@ -26,12 +31,12 @@ class AstPrinter < Expr
     
     def parenthesize(name, *exprs)
         builder = ""
-        builder << "(#{name}"
+        builder += "(#{name}"
         exprs.each do |expr, i|
-                builder << " #{expr.accept(self)}"
-                builder << " #{i.accept(self)}" unless i.nil?
+                builder += " #{expr.accept(self)}"
+                builder += " #{i.accept(self)}" unless i.nil?
         end
-        builder << ")"                               
+        builder += ")"                               
     
         return builder.to_s                            
     end
@@ -47,5 +52,5 @@ class AstPrinter < Expr
         puts(AstPrinter.new.print(expression))
     end               
 end
-printer = AstPrinter.new
-printer.main
+# printer = AstPrinter.new
+# printer.main

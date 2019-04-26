@@ -1,5 +1,6 @@
 require "./lox"
 require "./token"
+require "./parser"
 class Scanner
     attr_reader :tokens
     KEYWORDS = [
@@ -33,9 +34,9 @@ class Scanner
             @start = @current
             scan_token()
         end
-        # @tokens << Token.new(:eof, "", nil, @line)
-        # return @tokens
-        puts @tokens
+        @tokens.append Token.new(:eof, "", nil, @line)
+        return @tokens
+        # puts @tokens
     end
 
     def scan_token
