@@ -1,7 +1,7 @@
 require "./lox"
 
 if ARGV.length > 1
-    puts "Usage: jlox [script]"
+    puts "Usage: rulox [script]"
 elsif ARGV.length == 1
     exit(64)
 else

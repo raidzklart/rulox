@@ -1,6 +1,8 @@
 require "./Expr"
-class Parser < Expr
-    attr_accessor :tokens, :current
+class Parser
+    include Expr
+    include Enumerable
+    attr_reader :tokens, :current
     def initialize(tokens)
         @tokens = tokens
         @current = 0
@@ -10,7 +12,7 @@ class Parser < Expr
         begin
             return expression()
         rescue => exception
-            puts "THE EXCEPTION: #{exception}"
+            puts "Lox Parse Error: #{exception}"
         end
     end
 
@@ -85,7 +87,7 @@ class Parser < Expr
             consume(:right_paren, "Expect ')' after expression.")
             return Grouping.new(expr)
         else
-            error(peek, "Expect expression.")
+            error(peek, "Invalid expression.")
         end
     end
 
@@ -109,9 +111,9 @@ class Parser < Expr
     
     def error(token, message)
         if token == :eof
-            raise "#{token} #{message}"
+            raise "Line: #{token.line}. Token: #{token} Error: #{message}"
         else
-            raise "Token: #{token} #{message}"
+            raise "Line: #{token.line}. Token: #{token} Error: #{message}"
         end
     end
 
@@ -156,5 +158,11 @@ class Parser < Expr
     
     def previous()
         @tokens[@current-1]
+    end
+    
+    def each(&block)
+        @tokens.each do |member|
+            block.call(member)
+        end
     end
 end

@@ -2,6 +2,7 @@ require "./lox"
 require "./token"
 require "./parser"
 class Scanner
+    include Enumerable
     attr_reader :tokens
     KEYWORDS = [
         "and",
@@ -36,7 +37,6 @@ class Scanner
         end
         @tokens.append Token.new(:eof, "", nil, @line)
         return @tokens
-        # puts @tokens
     end
 
     def scan_token
@@ -101,7 +101,6 @@ class Scanner
         end
         text = @source[@start, @current-@start]
         type = :id
-
         if KEYWORDS.include?(text)
             type = text.to_sym
         end
@@ -116,7 +115,6 @@ class Scanner
             advance()
         end
         #Unterminated string.
-        # lox = Lox.new
         raise Lox.error(@line, "Unterminated string.") if is_at_end?
         #The closing ".
         advance()
@@ -187,5 +185,11 @@ class Scanner
 
     def is_alphanumeric(c)
         is_alpha(c) or is_digit(c)
+    end
+
+    def each(&block)
+        @tokens.each do |member|
+            block.call(member)
+        end
     end
 end

@@ -1,12 +1,13 @@
 require "./Expr"
 require "./token"
 require "./parser"
-class AstPrinter < Expr                    
+class AstPrinter
+    include Expr
     def print(expr)
         begin
             return expr.accept(self)
         rescue => exception
-            puts exception
+            puts "AST Print Error: #{exception}"
         end                                          
     end
     

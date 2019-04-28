@@ -1,6 +1,6 @@
 class GenerateAST
     def initialize(path)
-        @path = path + "/Expr.rb"
+        @path =  "#{path}/expr.rb"
         @file = File.open(@path, "w")
     end
     def main
@@ -15,7 +15,7 @@ class GenerateAST
     end
 
     def define_ast(output_dir, base_name, types) 
-            @file.puts("class " + base_name)
+            @file.puts("module " + base_name)
             define_visitor(base_name, types)
             @file.puts("  def accept(visitor)")
             @file.puts("    end")
@@ -40,12 +40,17 @@ class GenerateAST
     end
 
     def define_type(base_name, class_name, field_list)
-        @file.puts("  class " + class_name + " < " + base_name )
+        @file.puts("  class " + class_name)
+        @file.puts("    include " + base_name)
+        fields = field_list.split(", ")
+        fields.each do |field|
+            name = field.split(" ")                         
+            @file.puts("     attr_reader :#{name.join}")
+        end
         #Constructor.                                              
         @file.puts("    " + "def initialize"+ "(" + field_list + ")")
     
-        #Store parameters in fields.                               
-        fields = field_list.split(", ")                     
+        #Store parameters in fields.
         fields.each do |field|                               
             name = field.split(" ")                         
             @file.puts("      @#{name.join} = #{name.join}")
