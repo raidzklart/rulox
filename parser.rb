@@ -1,23 +1,106 @@
 require "./Expr"
+require "./stmt"
+require "./environment"
 class Parser
     include Expr
+    include Stmt
     include Enumerable
-    attr_reader :tokens, :current
+    attr_reader :tokens, :current, :statements
     def initialize(tokens)
         @tokens = tokens
         @current = 0
     end
 
     def parse()
+        statements = []
         begin
-            return expression()
+            while !is_at_end
+                statements += [declaration()]
+            end
         rescue => exception
-            puts "Lox Parse Error: #{exception}"
+            puts "Lox Parse Error: #{exception} #{@tokens}"
         end
+        return statements
+        # begin
+        #     return expression()
+        # rescue => exception
+        #     puts "Lox Parse Error: #{exception}"
+        # end
     end
 
     def expression()
-        return equality()
+        return assignment()
+    end
+
+    def declaration()
+        begin
+            if (match(:id))
+                return var_declaration()
+            else
+                return statement()
+            end
+        rescue => exception
+            synchronize()
+            raise exception
+        end
+    end
+
+    def statement()
+        if match(:print)
+            return print_statement()
+        elsif match(:left_brace)
+            return Block.new(block())
+        else
+            return expression_statement()
+        end
+    end
+
+    def print_statement()
+        value = expression()
+        consume(:semicolon, "Expect ';' after value.")
+        return Print.new(value)
+    end
+
+    def var_declaration()
+        name = consume(:id, "Expect variable name.")
+        initializer = nil
+        if (match(:equal))
+            initializer = expression()
+        end
+        consume(:semicolon, "Expect ';' after variable declaration.")
+        return Var.new(name, initializer)
+    end
+
+    def expression_statement()
+        expr = expression()
+        puts @tokens
+        consume(:semicolon, "Expect ';' after expression.")
+        return Expression.new(expr)
+    end
+
+    def block()
+        statements = []
+        while !check(:brace) && !isAtEnd()
+            statements += [declaration()]
+        end
+        consume(:right_brace, "Expect '}' after block.")
+        return statements
+    end
+
+    def assignment()
+        expr = equality()
+    
+        if (match(:equal))
+            equals = previous()
+            value = assignment()
+            if (expr.class == Variable)
+                name = expr.name
+                return Assign.new(name, value)
+            else
+                raise "#{equals}, Invalid assignment target."
+            end
+        end
+        return expr
     end
 
     def equality()                         
@@ -82,12 +165,14 @@ class Parser
             return Literal.new(nil)
         elsif match(:number, :string)
             return Literal.new(previous().literal)
+        elsif match(:id)
+            return Variable.new(previous())
         elsif match(:left_paren)
             expr = expression()
             consume(:right_paren, "Expect ')' after expression.")
             return Grouping.new(expr)
         else
-            error(peek, "Invalid expression.")
+            error(peek, "Invalid expression. #{@tokens}")
         end
     end
 

@@ -1,17 +1,28 @@
 class GenerateAST
-    def initialize(path)
-        @path =  "#{path}/expr.rb"
-        @file = File.open(@path, "w")
+    def initialize(path, file)
+        @path =  "#{path}/#{file}.rb"
+        @file = File.open(@path, "w+")
     end
     def main
-        if ARGV.length != 1
-            raise "Usage: generate_ast <output directory>"
+        if ARGV.length != 2
+            raise "Usage: generate_ast <output directory><file name>"
             exit 1
         end
         
         output_dir = ARGV[0]
-        type_descriptions = ["Binary   : left, operator, right", "Grouping : expression", "Literal  : value", "Unary    : operator, right"]  
-        define_ast(output_dir, "Expr", type_descriptions)     
+        if ARGV[1] == "Expr"
+            type_descriptions = ["Assign   : name, value", 
+                                "Binary   : left, operator, right", 
+                                "Grouping : expression", 
+                                "Literal  : value", 
+                                "Unary    : operator, right", 
+                                "Variable : name" ] 
+            define_ast(output_dir, "Expr", type_descriptions)
+        elsif ARGV[1] == "stmt"
+            define_ast(output_dir, "Stmt", ["Block      : statements","Expression : expression", "Print: expression", "Var        : name, initializer"])
+        else
+            puts "No method for your filename"
+        end
     end
 
     def define_ast(output_dir, base_name, types) 
@@ -62,5 +73,5 @@ class GenerateAST
         @file.puts("  end")
     end
 end
-main = GenerateAST.new(ARGV[0])
+main = GenerateAST.new(ARGV[0], ARGV[1])
 main.main

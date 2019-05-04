@@ -20,6 +20,7 @@ class Scanner
         "true",
         "let",
         "while",
+        "print"
       ]
     def initialize(source)
         @source = source
@@ -79,7 +80,7 @@ class Scanner
                 add_token(:slash)
             end
         when ' ', '\r', '\t'
-            nil
+            #Do nothing
         when '\n'
             @line += 1
         when '"'
@@ -90,7 +91,8 @@ class Scanner
             elsif is_alphanumeric(c)
                 identifier()
             else
-                Lox.error(@line, "Unexpected character.")
+                raise "Error on line #{@line}: Unexpected character." 
+                #\n\n\n#{@tokens}\nSIZE: #{@tokens.size}"
             end
         end
     end
@@ -115,7 +117,7 @@ class Scanner
             advance()
         end
         #Unterminated string.
-        raise Lox.error(@line, "Unterminated string.") if is_at_end?
+        raise "Line #{@line}, Unterminated string." if is_at_end?
         #The closing ".
         advance()
         #Trim the surrounding quotes.
@@ -124,7 +126,7 @@ class Scanner
     end
     
     def is_digit(c)
-        c >= '0' and c <= '9'
+        c =~ /[[:digit:]]/
     end
 
     def number()
@@ -180,7 +182,7 @@ class Scanner
     end
 
     def is_alpha(c)
-        (c >= 'a' and c <= 'z') or (c >= 'A' and c <= 'Z') or c == '_'
+        c =~ /[[:alpha:]]/
     end
 
     def is_alphanumeric(c)
