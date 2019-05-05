@@ -114,7 +114,7 @@ class Interpreter
     end
 
     def execute_block(statements, environment)
-        previous = @environment                                                         
+        previous = @environment
         begin
             @environment = environment
             statements.each do |statement|

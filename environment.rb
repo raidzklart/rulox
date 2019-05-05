@@ -28,6 +28,6 @@ class Environment
     end
 
     def define(name, value)
-        @values = { name => value } 
+        @values[name] = value 
     end
 end

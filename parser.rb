@@ -13,13 +13,11 @@ class Parser
 
     def parse()
         statements = []
-        begin
-            while !is_at_end
+            while !is_at_end()
                 statements += [declaration()]
+                match(:semicolon)
             end
-        rescue => exception
-            puts "Lox Parse Error: #{exception} #{@tokens}"
-        end
+            # puts "Lox Parse Error: #{exception} #{@tokens}"
         return statements
         # begin
         #     return expression()
@@ -80,7 +78,7 @@ class Parser
 
     def block()
         statements = []
-        while !check(:brace) && !isAtEnd()
+        while !check(:right_brace) && !is_at_end()
             statements += [declaration()]
         end
         consume(:right_brace, "Expect '}' after block.")

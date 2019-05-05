@@ -8,10 +8,11 @@ class Lox
     @had_error = false
 
     def run_file(path)
-        lines = File.readlines(path)
-        lines.each do |line|
-            run(line.chomp)
-        end
+        run(File.read(path).gsub("\n", " "))
+        # lines = File.readlines(path)
+        # lines.each do |line|
+        #     run(line.chomp)
+        # end
         #Indicate an error in the exit code.
         exit(65) if @had_error
     end
